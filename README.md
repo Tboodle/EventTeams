@@ -19,7 +19,24 @@ Event Teams panel from the RuneLite sidebar to:
 The share format is human-editable:
 
 ```json
-[{ "name": "Team A", "color": "#E74C3C", "players": ["Zezima", "B0aty"] }]
+[
+  {
+    "name": "Team 1",
+    "color": "#F255F2",
+    "players": [
+      "Zezima",
+      "B0aty"
+    ]
+  },
+  {
+    "name": "Team 2",
+    "color": "#55F2D9",
+    "players": [
+      "Tboodle",
+      "Odablock"
+    ]
+  }
+]
 ```
 
 <!-- TODO: screenshot of the side panel with a couple of teams set up -->
@@ -43,12 +60,9 @@ name is never labeled. Only players currently loaded in your scene are drawn.
 
 **Default:** on
 
-<!-- TODO: screenshot of this option in the config panel -->
 <img width="229" height="25" alt="image" src="https://github.com/user-attachments/assets/46e59aa1-3291-4923-b57a-8b8f93891d15" />
 
-
-<!-- TODO: screenshot of an in-world player with a team-colored name overhead -->
-![Enabled — Highlight players in world](docs/images/enabled-highlight-in-world.png)
+<img width="861" height="462" alt="image" src="https://github.com/user-attachments/assets/7be10f60-5691-4fea-b261-7ad00025cc95" />
 
 ---
 
@@ -77,8 +91,7 @@ minimap names get cluttered quickly when several teammates are close together.
 
 <img width="233" height="28" alt="image" src="https://github.com/user-attachments/assets/711130fd-6082-47a8-a894-3bb8ba774c7f" />
 
-<!-- TODO: screenshot of the minimap with names next to the dots -->
-![Enabled — Show names on minimap](docs/images/enabled-minimap-names.png)
+<img width="351" height="250" alt="image" src="https://github.com/user-attachments/assets/cba9a5c0-855a-4004-808a-8d7e153e891b" />
 
 ---
 
@@ -92,8 +105,7 @@ icons are preserved. Private messages and non-team players are never touched.
 
 <img width="233" height="30" alt="image" src="https://github.com/user-attachments/assets/241af9ae-4424-4837-b043-95dfa79f963e" />
 
-<!-- TODO: screenshot of public + clan chat lines with team-colored names -->
-![Enabled — Color names in chat](docs/images/enabled-chat-colors.png)
+<img width="680" height="43" alt="image" src="https://github.com/user-attachments/assets/7923c789-9011-4612-b755-5a4e9d0a8427" />
 
 ---
 
@@ -114,8 +126,7 @@ the default text color.
 
 <img width="231" height="24" alt="image" src="https://github.com/user-attachments/assets/c6742cae-e0e9-4b28-b43f-1f85698eef8f" />
 
-<!-- TODO: screenshot of a clan chat line showing [Clan] [Team] Player -->
-![Enabled — Show team name in chat](docs/images/enabled-team-name-chat.png)
+<img width="769" height="70" alt="image" src="https://github.com/user-attachments/assets/334d3867-ab7f-4088-91b4-5d53f25a6b77" />
 
 ---
 
@@ -131,8 +142,7 @@ is shifted right so the two don't overlap.
 
 <img width="227" height="26" alt="image" src="https://github.com/user-attachments/assets/e06a8c9b-87d7-4ed8-a5bf-4b7370c2266c" />
 
-<!-- TODO: screenshot of the friends list with team squares after names -->
-![Enabled — Team square in friends list](docs/images/enabled-friends-list.png)
+<img width="360" height="499" alt="image" src="https://github.com/user-attachments/assets/e2668cfd-bf0f-457b-a9e0-688f9b97c70a" />
 
 ---
 
