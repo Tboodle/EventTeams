@@ -62,6 +62,7 @@ name is never labeled. Only players currently loaded in your scene are drawn.
 
 <img width="229" height="25" alt="image" src="https://github.com/user-attachments/assets/46e59aa1-3291-4923-b57a-8b8f93891d15" />
 
+
 <img width="861" height="462" alt="image" src="https://github.com/user-attachments/assets/7be10f60-5691-4fea-b261-7ad00025cc95" />
 
 ---
@@ -75,6 +76,7 @@ this only covers players currently loaded in your scene.
 **Default:** on
 
 <img width="235" height="34" alt="image" src="https://github.com/user-attachments/assets/427bafa3-8d33-40a2-97db-02ff2b4136be" />
+
 
 <!-- TODO: screenshot of the minimap showing team-colored dots -->
 ![Enabled — Highlight on minimap](docs/images/enabled-highlight-minimap.png)
@@ -91,6 +93,7 @@ minimap names get cluttered quickly when several teammates are close together.
 
 <img width="233" height="28" alt="image" src="https://github.com/user-attachments/assets/711130fd-6082-47a8-a894-3bb8ba774c7f" />
 
+
 <img width="351" height="250" alt="image" src="https://github.com/user-attachments/assets/cba9a5c0-855a-4004-808a-8d7e153e891b" />
 
 ---
@@ -104,6 +107,7 @@ icons are preserved. Private messages and non-team players are never touched.
 **Default:** on
 
 <img width="233" height="30" alt="image" src="https://github.com/user-attachments/assets/241af9ae-4424-4837-b043-95dfa79f963e" />
+
 
 <img width="680" height="43" alt="image" src="https://github.com/user-attachments/assets/7923c789-9011-4612-b755-5a4e9d0a8427" />
 
@@ -126,6 +130,7 @@ the default text color.
 
 <img width="231" height="24" alt="image" src="https://github.com/user-attachments/assets/c6742cae-e0e9-4b28-b43f-1f85698eef8f" />
 
+
 <img width="769" height="70" alt="image" src="https://github.com/user-attachments/assets/334d3867-ab7f-4088-91b4-5d53f25a6b77" />
 
 ---
@@ -141,6 +146,7 @@ is shifted right so the two don't overlap.
 **Default:** on
 
 <img width="227" height="26" alt="image" src="https://github.com/user-attachments/assets/e06a8c9b-87d7-4ed8-a5bf-4b7370c2266c" />
+
 
 <img width="360" height="499" alt="image" src="https://github.com/user-attachments/assets/e2668cfd-bf0f-457b-a9e0-688f9b97c70a" />
 
