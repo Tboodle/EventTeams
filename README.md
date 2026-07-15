@@ -77,6 +77,8 @@ this only covers players currently loaded in your scene.
 
 <img width="235" height="34" alt="image" src="https://github.com/user-attachments/assets/427bafa3-8d33-40a2-97db-02ff2b4136be" />
 
+<img width="362" height="283" alt="image" src="https://github.com/user-attachments/assets/012aebc8-b6fa-4b32-95f9-b74547150ff8" />
+
 
 <!-- TODO: screenshot of the minimap showing team-colored dots -->
 ![Enabled — Highlight on minimap](docs/images/enabled-highlight-minimap.png)
