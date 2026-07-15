@@ -23,12 +23,16 @@ The share format is human-editable:
 ```
 
 <!-- TODO: screenshot of the side panel with a couple of teams set up -->
-![Event Teams side panel](docs/images/side-panel.png)
+<img width="232" height="640" alt="image" src="https://github.com/user-attachments/assets/0162ddb3-d2e1-4d35-b01d-88d41e4ef266" />
+
 
 ## Configuration
 
 Each option below is independent and can be toggled in the Event Teams config
 section.
+
+<img width="231" height="304" alt="image" src="https://github.com/user-attachments/assets/e3f7a71d-9bd9-4ba5-8a34-f9011b4d3ac3" />
+
 
 ---
 
@@ -40,7 +44,8 @@ name is never labeled. Only players currently loaded in your scene are drawn.
 **Default:** on
 
 <!-- TODO: screenshot of this option in the config panel -->
-![Config — Highlight players in world](docs/images/config-highlight-in-world.png)
+<img width="229" height="25" alt="image" src="https://github.com/user-attachments/assets/46e59aa1-3291-4923-b57a-8b8f93891d15" />
+
 
 <!-- TODO: screenshot of an in-world player with a team-colored name overhead -->
 ![Enabled — Highlight players in world](docs/images/enabled-highlight-in-world.png)
@@ -55,8 +60,7 @@ this only covers players currently loaded in your scene.
 
 **Default:** on
 
-<!-- TODO: screenshot of this option in the config panel -->
-![Config — Highlight on minimap](docs/images/config-highlight-minimap.png)
+<img width="235" height="34" alt="image" src="https://github.com/user-attachments/assets/427bafa3-8d33-40a2-97db-02ff2b4136be" />
 
 <!-- TODO: screenshot of the minimap showing team-colored dots -->
 ![Enabled — Highlight on minimap](docs/images/enabled-highlight-minimap.png)
@@ -71,8 +75,7 @@ minimap names get cluttered quickly when several teammates are close together.
 
 **Default:** off
 
-<!-- TODO: screenshot of this option in the config panel -->
-![Config — Show names on minimap](docs/images/config-minimap-names.png)
+<img width="233" height="28" alt="image" src="https://github.com/user-attachments/assets/711130fd-6082-47a8-a894-3bb8ba774c7f" />
 
 <!-- TODO: screenshot of the minimap with names next to the dots -->
 ![Enabled — Show names on minimap](docs/images/enabled-minimap-names.png)
@@ -87,8 +90,7 @@ icons are preserved. Private messages and non-team players are never touched.
 
 **Default:** on
 
-<!-- TODO: screenshot of this option in the config panel -->
-![Config — Color names in chat](docs/images/config-chat-colors.png)
+<img width="233" height="30" alt="image" src="https://github.com/user-attachments/assets/241af9ae-4424-4837-b043-95dfa79f963e" />
 
 <!-- TODO: screenshot of public + clan chat lines with team-colored names -->
 ![Enabled — Color names in chat](docs/images/enabled-chat-colors.png)
@@ -110,8 +112,7 @@ the default text color.
 
 **Default:** off
 
-<!-- TODO: screenshot of this option in the config panel -->
-![Config — Show team name in chat](docs/images/config-team-name-chat.png)
+<img width="231" height="24" alt="image" src="https://github.com/user-attachments/assets/c6742cae-e0e9-4b28-b43f-1f85698eef8f" />
 
 <!-- TODO: screenshot of a clan chat line showing [Clan] [Team] Player -->
 ![Enabled — Show team name in chat](docs/images/enabled-team-name-chat.png)
@@ -128,8 +129,7 @@ is shifted right so the two don't overlap.
 
 **Default:** on
 
-<!-- TODO: screenshot of this option in the config panel -->
-![Config — Team square in friends list](docs/images/config-friends-list.png)
+<img width="227" height="26" alt="image" src="https://github.com/user-attachments/assets/e06a8c9b-87d7-4ed8-a5bf-4b7370c2266c" />
 
 <!-- TODO: screenshot of the friends list with team squares after names -->
 ![Enabled — Team square in friends list](docs/images/enabled-friends-list.png)
@@ -147,5 +147,3 @@ is shifted right so the two don't overlap.
 - **The friends list squares are only drawn when the list updates.** Editing a
   team's color or roster while the friends list is already open won't re-draw the
   squares until the list next refreshes (e.g. a friend logs in/out).
-- **Everything is local.** The plugin talks to no external service; rosters live
-  in your RuneLite config.
