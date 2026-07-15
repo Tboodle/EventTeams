@@ -56,12 +56,23 @@ public interface EventTeamsConfig extends Config
 
 	@ConfigItem(
 		keyName = "tagChatMessages",
-		name = "Tag chat messages",
-		description = "Prefix chat messages with [Team Name] and color the sender's name",
+		name = "Color names in chat",
+		description = "Color a tracked player's name in their team color in public and clan chat",
 		position = 4
 	)
 	default boolean tagChatMessages()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showTeamNameInChat",
+		name = "Show team name in chat",
+		description = "Also prefix the player's name with their team name (after the clan tag, before the name)",
+		position = 5
+	)
+	default boolean showTeamNameInChat()
+	{
+		return false;
 	}
 }

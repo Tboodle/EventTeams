@@ -16,6 +16,7 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ClanChannelChanged;
 import net.runelite.api.events.ClanMemberJoined;
 import net.runelite.api.events.ClanMemberLeft;
+import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -167,10 +168,10 @@ public class EventTeamsPlugin extends Plugin
 	}
 
 	/**
-	 * Tags public/clan chat messages with a "[Team]" prefix, coloring the team
-	 * name using OSRS's inline <col=RRGGBB> chat markup and leaving the player's
-	 * own name in its default color. Private messages and messages from players
-	 * not on a team roster are left untouched.
+	 * Colors a rostered player's name in their team color in public and clan
+	 * chat, using OSRS's inline <col=RRGGBB> chat markup, leaving the rest of
+	 * the line (including the clan channel tag) untouched. Private messages and
+	 * messages from players not on a team roster are left untouched.
 	 */
 	@Subscribe
 	public void onChatMessage(ChatMessage chatMessage)
@@ -211,41 +212,102 @@ public class EventTeamsPlugin extends Plugin
 			return;
 		}
 
-		if (chatMessage.getType() == ChatMessageType.PUBLICCHAT)
-		{
-			// Color only the team name; brackets and the player's own name keep
-			// their default color. Matches the clan-chat path below, where the
-			// client draws the (uncolored) brackets around the sender itself.
-			String teamTag = "[" + ColorUtil.wrapWithColorTag(team.getName(), team.getColor()) + "]";
-			String taggedName = teamTag + " " + messageNode.getName();
-
-			clientThread.invokeLater(() -> {
-				messageNode.setName(taggedName);
-				client.refreshChat();
-			});
-			return;
-		}
-
-		// Clan chat resolves the sender's rank icon by looking the name up in
-		// the channel when the line is (re)built — rewriting the name breaks
-		// that lookup and demotes everyone's icon to guest. Instead, swap the
-		// sender (the "[Clan Name]" prefix slot) for the team tag, giving
-		// "[Team Name] <icon>Player X: message" with the icon intact.
-		String teamTag = ColorUtil.wrapWithColorTag(team.getName(), team.getColor());
+		// Color the sender's name in their team color, for both public and clan
+		// chat, and leave every other part of the line alone — including the
+		// clan channel tag (the "[Clan Name]" sender slot). Wrapping the stored
+		// name in only a <col> tag is safe for rank icons: they're resolved by
+		// matching Text.removeTags(name), which strips the color tag, so the icon
+		// still resolves. The optional team-name prefix is deliberately NOT baked
+		// into the stored name here — a literal "[Team]" would survive removeTags
+		// and break that lookup (demoting clan icons to guest). It's added to the
+		// transient build stack instead, in onScriptCallbackEvent below.
+		String coloredName = ColorUtil.wrapWithColorTag(messageNode.getName(), team.getColor());
 
 		clientThread.invokeLater(() -> {
-			messageNode.setSender(teamTag);
+			messageNode.setName(coloredName);
 			client.refreshChat();
 		});
 	}
 
 	/**
+	 * Adds the optional team tag to public/clan chat lines as they are built, by
+	 * editing the object stack rather than the stored MessageNode name. The chat
+	 * build stack holds [channel/clan-tag = size-4, username = size-3, message =
+	 * size-2]. The clan rank icon is resolved from the username (size-3) *after*
+	 * this callback, so that slot must stay clean — a literal "[Team]" there
+	 * would fail the lookup and demote everyone's icon to guest.
+	 *
+	 * So in clan chat we append the team tag to the clan-tag slot (size-4),
+	 * rendering "[Clan] [Team] &lt;icon&gt;Player" with the icon intact. Public
+	 * chat has no clan tag, so there we prefix the username slot directly.
+	 */
+	@Subscribe
+	public void onScriptCallbackEvent(ScriptCallbackEvent event)
+	{
+		if (!"chatMessageBuilding".equals(event.getEventName())
+			|| !config.tagChatMessages() || !config.showTeamNameInChat())
+		{
+			return;
+		}
+
+		int uid = client.getIntStack()[client.getIntStackSize() - 1];
+		MessageNode messageNode = client.getMessages().get(uid);
+		if (messageNode == null)
+		{
+			return;
+		}
+
+		ChatMessageType type = messageNode.getType();
+		Object[] objectStack = client.getObjectStack();
+		int size = client.getObjectStackSize();
+
+		// Username slot is read (tags stripped) to identify the team either way.
+		String name = (String) objectStack[size - 3];
+		TeamInfo team = registry.getTeamForPlayer(Text.removeTags(name));
+		if (team == null)
+		{
+			return;
+		}
+
+		String coloredTeam = ColorUtil.wrapWithColorTag(team.getName(), team.getColor());
+
+		if (type == ChatMessageType.CLAN_CHAT)
+		{
+			// Append to the clan-tag slot so it renders as a separate bracketed
+			// tag right after the clan tag; the username slot is left untouched
+			// so the clan rank icon still resolves. ChatMessageManager wraps this
+			// whole slot in the clan color, so close that color (</col>) before
+			// the "] [" separator — otherwise the brackets between the two tags
+			// inherit the clan color instead of the default text color.
+			String channel = (String) objectStack[size - 4];
+			objectStack[size - 4] = channel + "</col>] [" + coloredTeam;
+		}
+		else if (type == ChatMessageType.PUBLICCHAT)
+		{
+			objectStack[size - 3] = "[" + coloredTeam + "] " + name;
+		}
+	}
+
+	/**
+	 * The optional "[Team Name] " prefix (only the name within the brackets is
+	 * team-colored; a trailing space follows) shown before a player's name when
+	 * the config toggle is on, or "" when off.
+	 */
+	private String teamPrefix(TeamInfo team)
+	{
+		if (!config.showTeamNameInChat())
+		{
+			return "";
+		}
+		return "[" + ColorUtil.wrapWithColorTag(team.getName(), team.getColor()) + "] ";
+	}
+
+	/**
 	 * Broadcasts look like "Player X received a drop: Twisted bow." — if the
-	 * message starts with a roster player's name, add the colored team tag as the
-	 * sender and leave the message body (including the player's name) untouched,
-	 * consistent with the public/clan chat tagging. Matching is done on the raw
-	 * value (names never contain markup) with in-game non-breaking spaces treated
-	 * as regular spaces.
+	 * message starts with a roster player's name, color just that name in the
+	 * team color and leave the rest of the line untouched, consistent with the
+	 * public/clan chat coloring. Matching is done on the raw value (names never
+	 * contain markup) with in-game non-breaking spaces treated as regular spaces.
 	 */
 	private void tagBroadcast(MessageNode messageNode)
 	{
@@ -273,10 +335,13 @@ public class EventTeamsPlugin extends Plugin
 					continue;
 				}
 
-				String teamTag = ColorUtil.wrapWithColorTag(team.getName(), team.getColor());
+				String namePart = value.substring(0, candidate.length());
+				String rest = value.substring(candidate.length());
+				String colored = teamPrefix(team)
+					+ ColorUtil.wrapWithColorTag(namePart, team.getColor()) + rest;
 
 				clientThread.invokeLater(() -> {
-					messageNode.setSender(teamTag);
+					messageNode.setValue(colored);
 					client.refreshChat();
 				});
 				return;
