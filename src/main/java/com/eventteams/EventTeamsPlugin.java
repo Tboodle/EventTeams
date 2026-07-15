@@ -2,12 +2,16 @@ package com.eventteams;
 
 import com.google.gson.Gson;
 import com.google.inject.Provides;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.FontTypeFace;
+import net.runelite.api.ScriptID;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.ChatMessageType;
@@ -17,6 +21,10 @@ import net.runelite.api.events.ClanChannelChanged;
 import net.runelite.api.events.ClanMemberJoined;
 import net.runelite.api.events.ClanMemberLeft;
 import net.runelite.api.events.ScriptCallbackEvent;
+import net.runelite.api.events.ScriptPostFired;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetType;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -40,6 +48,10 @@ public class EventTeamsPlugin extends Plugin
 {
 	private static final String CONFIG_GROUP = "eventteams";
 	private static final String CONFIG_KEY_TEAM_DATA = "teamData";
+
+	/** Size of the team square drawn in the friends list, and its gap from the name. */
+	private static final int MARKER_SIZE = 6;
+	private static final int MARKER_GAP = 3;
 
 	@Inject
 	private Client client;
@@ -286,6 +298,135 @@ public class EventTeamsPlugin extends Plugin
 		{
 			objectStack[size - 3] = "[" + coloredTeam + "] " + name;
 		}
+	}
+
+	/**
+	 * Draws a small team-colored square beside tracked players' names in the
+	 * in-game friends list, leaving the name itself in its normal color.
+	 * FRIENDS_UPDATE rebuilds the list (wiping the squares along with the rest of
+	 * the dynamic children), so we re-add them after it fires. Rather than assume
+	 * a fixed child layout per row, every text child is matched against the
+	 * roster — the world/status columns simply never match a name.
+	 */
+	@Subscribe
+	public void onScriptPostFired(ScriptPostFired event)
+	{
+		if (event.getScriptId() != ScriptID.FRIENDS_UPDATE || !config.highlightFriendsList())
+		{
+			return;
+		}
+
+		Widget list = client.getWidget(InterfaceID.Friends.LIST);
+		if (list == null)
+		{
+			return;
+		}
+
+		Widget[] children = list.getDynamicChildren();
+		if (children == null)
+		{
+			return;
+		}
+
+		// Collect the matches first — createChild() below appends to the same
+		// dynamic-children array we'd otherwise be iterating.
+		Map<Widget, Color> marked = new LinkedHashMap<>();
+		for (Widget child : children)
+		{
+			String text = child.getText();
+			if (text == null || text.isEmpty())
+			{
+				continue;
+			}
+
+			Color color = registry.getColorForPlayer(Text.removeTags(text));
+			if (color != null)
+			{
+				marked.put(child, color);
+			}
+		}
+
+		for (Map.Entry<Widget, Color> entry : marked.entrySet())
+		{
+			Widget name = entry.getKey();
+
+			// Anchor the square just past the end of the rendered name text, not
+			// the name widget's right edge — the widget spans the whole column,
+			// so its edge sits in whitespace next to the World column.
+			int size = markerSize(name);
+			int markerX = name.getOriginalX() + textWidth(name) + MARKER_GAP;
+
+			nudgeIconsClear(children, name, markerX, size);
+
+			Widget marker = list.createChild(-1, WidgetType.RECTANGLE);
+			marker.setFilled(true);
+			marker.setOpacity(0);
+			marker.setTextColor(entry.getValue().getRGB() & 0xFFFFFF);
+			marker.setOriginalWidth(size);
+			marker.setOriginalHeight(size);
+			marker.setOriginalX(markerX);
+			marker.setOriginalY(name.getOriginalY() + (name.getOriginalHeight() - size) / 2);
+			marker.revalidate();
+		}
+	}
+
+	/**
+	 * Size of the team square. Grows a pixel when the row height's parity would
+	 * otherwise leave the square half a pixel off-center — an even square can
+	 * only sit dead-center in an even row, so match the row's parity and the
+	 * centering divides exactly instead of truncating a pixel high.
+	 */
+	private static int markerSize(Widget name)
+	{
+		return (name.getOriginalHeight() - MARKER_SIZE) % 2 == 0 ? MARKER_SIZE : MARKER_SIZE + 1;
+	}
+
+	/**
+	 * Shifts any icon that would sit underneath the team square out to its right
+	 * — chiefly the "recently renamed" indicator the game draws immediately after
+	 * a name. Restricted to GRAPHIC children on the same row that actually
+	 * overlap the square, so text columns (e.g. World) are never moved.
+	 */
+	private static void nudgeIconsClear(Widget[] children, Widget name, int markerX, int size)
+	{
+		for (Widget child : children)
+		{
+			if (child == name || child.getType() != WidgetType.GRAPHIC || !sameRow(child, name))
+			{
+				continue;
+			}
+
+			int x = child.getOriginalX();
+			boolean overlaps = x < markerX + size && x + child.getOriginalWidth() > markerX;
+			if (overlaps)
+			{
+				child.setOriginalX(x + size + MARKER_GAP);
+				child.revalidate();
+			}
+		}
+	}
+
+	/** Whether two widgets' vertical extents overlap, i.e. share a list row. */
+	private static boolean sameRow(Widget a, Widget b)
+	{
+		int aTop = a.getOriginalY();
+		int bTop = b.getOriginalY();
+		return aTop < bTop + b.getOriginalHeight() && bTop < aTop + a.getOriginalHeight();
+	}
+
+	/**
+	 * Rendered width of a text widget's contents, or its full width if the font
+	 * isn't available yet (which would place the square at the column edge rather
+	 * than drop it entirely).
+	 */
+	private static int textWidth(Widget textWidget)
+	{
+		FontTypeFace font = textWidget.getFont();
+		if (font == null)
+		{
+			return textWidget.getOriginalWidth();
+		}
+		return font.getTextWidth(Text.removeTags(textWidget.getText()));
 	}
 
 	/**

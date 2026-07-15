@@ -75,4 +75,15 @@ public interface EventTeamsConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+		keyName = "highlightFriendsList",
+		name = "Team square in friends list",
+		description = "Draw a small team-colored square next to tracked players in the in-game friends list",
+		position = 6
+	)
+	default boolean highlightFriendsList()
+	{
+		return true;
+	}
 }
